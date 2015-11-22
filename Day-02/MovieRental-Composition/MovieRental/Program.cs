@@ -5,25 +5,119 @@ using System.Text;
 
 namespace MovieRental
 {
+
+    public abstract class PriceBase
+    {
+        private readonly int _priceCode;
+
+        protected PriceBase(int priceCode)
+        {
+            _priceCode = priceCode;
+        }
+
+        public int getPriceCode()
+        {
+            return _priceCode;
+        }
+
+        public abstract double getAmount(int daysRented);
+    }
+
+    public class ChildrenMoviePrice : PriceBase
+    {
+        public ChildrenMoviePrice(int priceCode) : base(priceCode)
+        {
+        }
+
+        public override double getAmount(int daysRented)
+        {
+            double thisAmount = 1.5;
+            if (daysRented > 3)
+                thisAmount += (daysRented - 3) * 1.5;
+            return thisAmount;
+        }
+    }
+
+    public class NewMoviePrice : PriceBase
+    {
+        public NewMoviePrice(int priceCode) : base(priceCode)
+        {
+        }
+
+        public override double getAmount(int daysRented)
+        {
+            return  daysRented * 3;
+        }
+    }
+
+    public class RegularMoviePrice : PriceBase
+    {
+        public RegularMoviePrice(int priceCode) : base(priceCode)
+        {
+        }
+
+        public override double getAmount(int daysRented)
+        {
+            double thisAmount = 2;
+            if (daysRented > 2)
+                thisAmount += (daysRented - 2) * 1.5;
+            return thisAmount;
+        }
+    }
+
+    public interface IPriceFactory
+    {
+        PriceBase CreatePrice(int priceCode);
+    }
+
+    public class PriceFactory : IPriceFactory
+    {
+        public PriceBase CreatePrice(int priceCode)
+        {
+            PriceBase _price = null;
+            switch (priceCode)
+            {
+                case 2:
+                    _price = new ChildrenMoviePrice(priceCode);
+                    break;
+                case 1:
+                    _price = new NewMoviePrice(priceCode);
+                    break;
+                case 0:
+                    _price = new RegularMoviePrice(priceCode);
+                    break;
+            }
+            return _price;
+        }
+    }
+
     public class Movie {
 
        public const  int  CHILDRENS = 2;
        public const  int  REGULAR = 0;
        public const  int  NEW_RELEASE = 1;
 
-   
+
+       private PriceBase _price;
+
        private int _priceCode;
             private string _title;
+        private readonly IPriceFactory _priceFactory;
 
-            public Movie(String title, int priceCode) {
+        public Movie(String title, int priceCode, IPriceFactory priceFactory) {
            _title = title;
-           _priceCode = priceCode;
+                _priceFactory = priceFactory;
+                setPrice(priceCode);
        }
 
+        private void setPrice(int priceCode)
+        {
+            this._price = _priceFactory.CreatePrice(priceCode);
+        }
 					
        public int PriceCode {
-           get { return _priceCode; }
-           set { _priceCode = value; }
+           get { return _price.getPriceCode(); }
+           set { setPrice(value);}
        }
 
 
@@ -35,26 +129,7 @@ namespace MovieRental
 
         public double getAmount(int daysRented)
         {
-            double thisAmount = 0;
-            //determine amounts for each line
-            switch (this.PriceCode)
-            {
-                case Movie.REGULAR:
-                    thisAmount += 2;
-                    if (daysRented > 2)
-                        thisAmount += (daysRented - 2) * 1.5;
-                    break;
-                case Movie.NEW_RELEASE:
-                    thisAmount += daysRented * 3;
-                    break;
-                case Movie.CHILDRENS:
-                    thisAmount += 1.5;
-                    if (daysRented > 3)
-                        thisAmount += (daysRented - 3) * 1.5;
-                    break;
-
-            }
-            return thisAmount;
+            return _price.getAmount(daysRented);
         }
 
         public int getFrequentRenterPoints(int daysRented)

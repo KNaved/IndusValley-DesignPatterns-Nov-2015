@@ -5,73 +5,81 @@ using System.Text;
 
 namespace MovieRental
 {
-    public class Movie {
+    public abstract class MovieBase
+    {
+        private readonly string _title;
 
-       public const  int  CHILDRENS = 2;
-       public const  int  REGULAR = 0;
-       public const  int  NEW_RELEASE = 1;
-
-   
-       private int _priceCode;
-            private string _title;
-
-            public Movie(String title, int priceCode) {
-           _title = title;
-           _priceCode = priceCode;
-       }
-
-					
-       public int PriceCode {
-           get { return _priceCode; }
-           set { _priceCode = value; }
-       }
-
-
-        public string Title
+        protected MovieBase(string title)
         {
-            get { return _title; }
-            set { _title = value; }
+            _title = title;
         }
 
-        public double getAmount(int daysRented)
-        {
-            double thisAmount = 0;
-            //determine amounts for each line
-            switch (this.PriceCode)
-            {
-                case Movie.REGULAR:
-                    thisAmount += 2;
-                    if (daysRented > 2)
-                        thisAmount += (daysRented - 2) * 1.5;
-                    break;
-                case Movie.NEW_RELEASE:
-                    thisAmount += daysRented * 3;
-                    break;
-                case Movie.CHILDRENS:
-                    thisAmount += 1.5;
-                    if (daysRented > 3)
-                        thisAmount += (daysRented - 3) * 1.5;
-                    break;
 
-            }
-            return thisAmount;
-        }
+        public abstract double getAmount(int daysRented);
 
-        public int getFrequentRenterPoints(int daysRented)
+        public virtual int getFrequentRenterPoints(int daysRented)
         {
-            int frequentRenterPoints = 1;
-            // add bonus for a two day new release rental
-            if ((this.PriceCode == Movie.NEW_RELEASE) && daysRented > 1) ++frequentRenterPoints;
-            return frequentRenterPoints;
+            return 1;
         }
     }
 
+    public class ChildrensMovie : MovieBase
+    {
+        public ChildrensMovie(string title) : base(title)
+        {
+            
+        }
+
+        public override double getAmount(int daysRented)
+        {
+            double thisAmount = 1.5;
+            if (daysRented > 3)
+                thisAmount += (daysRented - 3) * 1.5;
+            return thisAmount;
+            
+        }
+    }
+
+    public class RegularMovie : MovieBase
+    {
+        public RegularMovie(string title) : base(title)
+        {
+            
+        }
+        public override double getAmount(int daysRented)
+        {
+            double thisAmount = 2;
+            if (daysRented > 2)
+                thisAmount += (daysRented - 2) * 1.5;
+            return thisAmount;
+        }
+    }
+
+    public class NewReleaseMovie : MovieBase
+    {
+        public NewReleaseMovie(string title) : base(title)
+        {
+        }
+
+        public override double getAmount(int daysRented)
+        {
+            return daysRented * 3;
+        }
+
+        public override int getFrequentRenterPoints(int daysRented)
+        {
+            return daysRented > 1 ? 2 : 1;
+        }
+    }
+
+    
+
     public class Rental
     {
-        private Movie _movie;
+        private MovieBase _movie;
         private int _daysRented;
 
-        public Rental(Movie movie, int daysRented)
+        public Rental(MovieBase movie, int daysRented)
         {
             _movie = movie;
             _daysRented = daysRented;
@@ -80,7 +88,7 @@ namespace MovieRental
         {
             return _daysRented;
         }
-        public Movie getMovie()
+        public MovieBase getMovie()
         {
             return _movie;
         }
@@ -96,6 +104,13 @@ namespace MovieRental
 
     }
 
+    public enum MovieTypeEnum
+    {
+        Childrens,
+        NewRelease,
+        Regular
+    }
+
     public class Customer
     {
         private String _name;
@@ -106,11 +121,9 @@ namespace MovieRental
             _name = name;
         }
 
-    
-
-        public void addRental(Rental arg)
+        public void addRental(Rental rental)
         {
-            _rentals.Add(arg);
+            _rentals.Add(rental);
         }
 
         public String getName()
@@ -153,13 +166,23 @@ namespace MovieRental
             }
             return frequentRenterPoints;
         }
+    }
 
-        
-
-        
-
-
-    
+    public class MovieFactory{
+        public MovieBase Create(MovieTypeEnum movieType, string title)
+        {
+            switch (movieType)
+            {
+                case MovieTypeEnum.Childrens:
+                    return new ChildrensMovie(title);
+                case MovieTypeEnum.NewRelease:
+                    return new NewReleaseMovie(title);
+                case MovieTypeEnum.Regular:
+                    return new RegularMovie(title);
+                default:
+                    throw new Exception("Invalid movie type");
+            }
+        }
     }
 
     class Program
