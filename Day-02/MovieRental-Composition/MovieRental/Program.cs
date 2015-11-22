@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
 namespace MovieRental
@@ -237,10 +238,71 @@ namespace MovieRental
     
     }
 
+    public class CustomerStore
+    {
+        private List<Customer> _list = new List<Customer>();
+
+        public void Add(Customer customer)
+        {
+            _list.Add(customer);
+        }
+
+        public Customer Get(string name)
+        {
+            return _list.FirstOrDefault(c => c.getName() == name);
+        }
+    }
+
+    public interface ICommand
+    {
+        void Execute();
+    }
+
+    public class CreateCustomerCommand : ICommand
+    {
+        private readonly CustomerStore _customerStore;
+        private readonly string _customerName;
+
+
+        public CreateCustomerCommand(CustomerStore customerStore, string customerName)
+        {
+            _customerStore = customerStore;
+            _customerName = customerName;
+        }
+
+        public void Execute()
+        {
+            var customer = new Customer(_customerName);
+            _customerStore.Add(customer);
+        }
+    }
+
+    public class CommandEngine
+    {
+        private List<ICommand> _commands = new List<ICommand>();
+
+        public void Add(ICommand command)
+        {
+            _commands.Add(command);
+        }
+
+        public void Run()
+        {
+            foreach (var command in _commands)
+            {
+                command.Execute();
+            }
+        }
+    }
+
     class Program
     {
         static void Main(string[] args)
         {
+            var store = new CustomerStore();
+            // user wants to add a customer
+            var createCustomerCommand = new CreateCustomerCommand(store, "Magesh");
+            createCustomerCommand.Execute();
         }
     }
 }

@@ -1,0 +1,7 @@
+D:\Training\IndusValley-PreTest\IndusValley-PreTest\bin\Debug\IndusValley-PreTest.exe
+D:\Training\IndusValley-PreTest\IndusValley-PreTest\bin\Debug\IndusValley-PreTest.pdb
+D:\Training\IndusValley-PreTest\IndusValley-PreTest\obj\Debug\IndusValley-PreTest.exe
+D:\Training\IndusValley-PreTest\IndusValley-PreTest\obj\Debug\IndusValley-PreTest.pdb
+D:\Training\IndusValley-PreTest\IndusValley-PreTest\obj\Debug\IndusValley-PreTest.csprojResolveAssemblyReference.cache
+D:\Training\IndusValley-DesignPatterns-Nov-2015\Day-02\Composite\IndusValley-PreTest\obj\Debug\IndusValley-PreTest.exe
+D:\Training\IndusValley-DesignPatterns-Nov-2015\Day-02\Composite\IndusValley-PreTest\obj\Debug\IndusValley-PreTest.pdb
